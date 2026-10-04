@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="مبيعات كابو">
+    <link rel="manifest" href="manifest.json">
+    <title>تطبيق مبيعات كابو - مندوب التوزيع</title>
+    <!-- خط تجوال و كايرو لسهولة القراءة لكبار السن -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- الترويسة الرئيسية للمندوب -->
+    <header class="app-header">
+        <div class="header-top">
+            <div class="brand-info">
+                <span class="brand-badge">منتجات كابو</span>
+                <h1 class="rep-name-title" id="displayRepName">المندوب: محمد أحمد</h1>
+                <span class="route-tag" id="displayRepRoute">خط التوزيع: بحري / المزاد</span>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="btn-icon-mode" id="btnToggleAdmin" title="لوحة الإدارة والإعدادات">
+                    ⚙️ <span class="mode-text">الإدارة</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- شريط التبديل السريع بين إنشاء فاتورة وسجل اليوم -->
+        <nav class="main-tabs">
+            <button class="tab-btn active" id="tabNewInvoice" onclick="switchView('new-invoice')">
+                <span class="tab-icon">📝</span>
+                <span>فاتورة جديدة</span>
+            </button>
+            <button class="tab-btn" id="tabHistory" onclick="switchView('history')">
+                <span class="tab-icon">📋</span>
+                <span>فواتير اليوم (<span id="todayCountBadge">0</span>)</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="app-container">
+
+        <!-- ======================= واجهة 1: إنشاء فاتورة جديدة ======================= -->
+        <section id="viewNewInvoice" class="app-view active-view">
+            
+            <!-- الخطوة 1: اختيار المحل أو العميل -->
+            <div class="elderly-card step-card">
+                <div class="step-header">
+                    <span class="step-num">1</span>
+                    <h2 class="step-title">اسم المحل أو العميل</h2>
+                </div>
+
+                <!-- قائمة سريعة للمحلات المعتادة بنقرة واحدة -->
+                <div class="quick-stores-label">اختر سريعاً من محلاتك المعتادة أو اكتب اسماً جديداً:</div>
+                <div class="quick-chips-container" id="quickStoresContainer">
+                    <!-- تتولد ديناميكياً -->
+                </div>
+
+                <div class="store-input-group">
+                    <input type="text" id="customerNameInput" class="large-input" placeholder="اكتب اسم المحل (مثال: بقالة الأمانة)" autocomplete="off">
+                    <input type="tel" id="customerPhoneInput" class="medium-input" placeholder="رقم هاتف العميل (اختياري للواتساب)" autocomplete="off">
+                </div>
+            </div>
+
+            <!-- الخطوة 2: اختيار أصناف كابو والكميات -->
+            <div class="elderly-card step-card">
+                <div class="step-header">
+                    <span class="step-num">2</span>
+                    <div class="step-header-text">
+                        <h2 class="step-title">أصناف كابو المطلوبة</h2>
+                        <span class="step-hint">اضغط على (+) لزيادة الكمية أو اكتب العدد مباشرة</span>
+                    </div>
+                </div>
+
+                <!-- تصفية الفئات لسهولة الوصول لكبار السن -->
+                <div class="category-filters" id="categoryFilterContainer">
+                    <button class="cat-pill active" onclick="filterCategory('الكل')">كل الأصناف</button>
+                    <button class="cat-pill" onclick="filterCategory('طبيعي')">طبيعي</button>
+                    <button class="cat-pill" onclick="filterCategory('جامد')">جامد</button>
+                    <button class="cat-pill" onclick="filterCategory('مش')">مش</button>
+                    <button class="cat-pill" onclick="filterCategory('فراولة')">فراولة</button>
+                </div>
+
+                <!-- شبكة كروت المنتجات المصممة بأزرار ضخمة -->
+                <div class="products-grid" id="productsGridContainer">
+                    <!-- تتولد تلقائياً من الجافاسكربت -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ======================= واجهة 2: سجل فواتير اليوم وتلخيص الرئاسة ======================= -->
+        <section id="viewHistory" class="app-view">
+            
+            <div class="elderly-card summary-card">
+                <h2 class="summary-card-title">📊 كشف اليومية المجمع</h2>
+                <div class="summary-metrics">
+                    <div class="metric-box">
+                        <span class="metric-label">عدد الفواتير اليوم</span>
+                        <span class="metric-value" id="summaryInvoicesCount">0</span>
+                    </div>
+                    <div class="metric-box highlight">
+                        <span class="metric-label">إجمالي المبيعات الكلي</span>
+                        <span class="metric-value" id="summaryTotalAmount">0 <small>ج.س</small></span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">إجمالي العلب المباعة</span>
+                        <span class="metric-value" id="summaryTotalUnits">0 <small>علبة</small></span>
+                    </div>
+                </div>
+
+                <!-- زر مباشر لإرسال التقرير الشامل لرئاسة الشركة -->
+                <button class="btn-hq-send-all" onclick="sendFullDayReportToHQ()">
+                    <span class="btn-icon">🏢📲</span>
+                    <span>إرسال تقرير اليومية بالكامل لواتساب الرئاسة</span>
+                </button>
+                
+                <div class="export-actions">
+                    <button class="btn-export-excel" onclick="exportTodayToExcel()">
+                        📥 تنزيل كملف Excel / CSV للنظام المركزي
+                    </button>
+                </div>
+            </div>
+
+            <!-- قائمة الفواتير الفردية -->
+            <div class="invoices-list-section">
+                <h3 class="section-title">فواتير اليوم المنفذة:</h3>
+                <div id="invoicesListContainer" class="invoices-list">
+                    <!-- تتولد ديناميكياً -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ======================= واجهة 3: لوحة الإدارة والإعدادات (HQ Admin) ======================= -->
+        <section id="viewAdmin" class="app-view">
+            <div class="elderly-card">
+                <div class="admin-top-bar">
+                    <h2 class="step-title">⚙️ إعدادات المندوب والشركة</h2>
+                    <button class="btn-close-admin" onclick="switchView('new-invoice')">إغلاق ✕</button>
+                </div>
+
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label>رقم واتساب رئاسة الشركة (المستلم للفواتير):</label>
+                        <input type="tel" id="settingHqPhone" class="large-input" placeholder="مثال: 249912345678">
+                        <small class="field-hint">ضع الرقم مع مفتاح الدولة (مثل 249) بدون أصفار إضافية</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>اسم المندوب:</label>
+                        <input type="text" id="settingRepName" class="large-input" placeholder="اسمك الكامل">
+                    </div>
+
+                    <div class="form-group">
+                        <label>خط السير / المنطقة:</label>
+                        <input type="text" id="settingRepRoute" class="large-input" placeholder="مثال: خط أم درمان - ود البشير">
+                    </div>
+
+                    <button class="btn-primary-big" onclick="saveSettings()">💾 حفظ التعديلات</button>
+                </div>
+
+                <hr class="divider">
+
+                <div class="admin-products-section">
+                    <h3 class="section-title">📦 تعديل أسعار منتجات كابو:</h3>
+                    <div id="adminPricesContainer" class="admin-prices-list">
+                        <!-- تتولد ديناميكياً -->
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <div class="admin-danger-section">
+                    <h3 class="danger-title">⚠️ عمليات اليومية:</h3>
+                    <button class="btn-danger-big" onclick="confirmResetAllTodayData()">
+                        🗑️ تصفير فواتير اليوم وبدء يومية جديدة
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- الشريط السفلي الدائم للمندوب (إجمالي السلة والزر الحاسم) -->
+    <div class="bottom-bar" id="bottomCartBar">
+        <div class="bar-summary">
+            <div class="bar-subtext">إجمالي الفاتورة:</div>
+            <div class="bar-total" id="barTotalDisplay">0 <span class="currency">ج.س</span></div>
+            <div class="bar-units" id="barUnitsDisplay">(0 صنف مختار)</div>
+        </div>
+        <button class="btn-checkout" id="btnCheckout" onclick="openInvoicePreview()">
+            <span>إصدار الفاتورة</span>
+            <span class="arrow-icon">⬅</span>
+        </button>
+    </div>
+
+    <!-- ======================= نافذة معاينة الفاتورة وإرسالها (Invoice Modal) ======================= -->
+    <div class="modal-overlay" id="invoiceModalOverlay">
+        <div class="modal-dialog invoice-dialog">
+            
+            <div class="thermal-receipt" id="printableReceipt">
+                <!-- رأس الفاتورة الرسمية -->
+                <div class="receipt-header">
+                    <div class="receipt-company">شركة كابو للألبان المحدودة</div>
+                    <div class="receipt-sub">إيصال مبيعات وتوزيع يومي</div>
+                    <div class="receipt-divider">==============================</div>
+                    
+                    <div class="receipt-meta">
+                        <div><b>رقم الفاتورة:</b> <span id="recInvoiceNum">#KB-001</span></div>
+                        <div><b>التاريخ والوقت:</b> <span id="recDateTime">--</span></div>
+                        <div><b>المندوب:</b> <span id="recRepName">--</span></div>
+                        <div><b>خط السير:</b> <span id="recRepRoute">--</span></div>
+                        <div class="receipt-customer-highlight">
+                            <b>اسم العميل/المحل:</b> <span id="recCustomerName">--</span>
+                        </div>
+                    </div>
+                    <div class="receipt-divider">------------------------------</div>
+                </div>
+
+                <!-- جدول الأصناف والكميات في الفاتورة -->
+                <table class="receipt-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: right;">الصنف</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th style="text-align: left;">الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recItemsBody">
+                        <!-- تتولد ديناميكياً -->
+                    </tbody>
+                </table>
+
+                <div class="receipt-divider">==============================</div>
+
+                <!-- تذييل الفاتورة بالمجاميع -->
+                <div class="receipt-total-box">
+                    <div class="receipt-total-row">
+                        <span>إجمالي القطع والعلب:</span>
+                        <b id="recTotalUnits">0 علبة</b>
+                    </div>
+                    <div class="receipt-grand-total-row">
+                        <span>المبلغ المستحق:</span>
+                        <span id="recGrandTotal">0 ج.س</span>
+                    </div>
+                </div>
+
+                <div class="receipt-footer-notes">
+                    <div>شكراً لتعاملكم مع زبادي كابو</div>
+                    <small>نسخة الكترونية معتمدة من نظام الموزع</small>
+                </div>
+            </div>
+
+            <!-- أزرار الإجراءات الضخمة للمندوب -->
+            <div class="invoice-actions-group">
+                <!-- الزر الذهبي للرئاسة -->
+                <button class="action-btn btn-send-hq" onclick="sendInvoiceToHQWhatsApp()">
+                    <span class="action-icon">🏢📲</span>
+                    <div class="action-texts">
+                        <span class="action-title">إرسال لرئاسة الشركة (واتساب)</span>
+                        <span class="action-desc">يسجل الفاتورة فوراً لدى إدارة الحسابات المركزية</span>
+                    </div>
+                </button>
+
+                <!-- زر مشاركة العميل أو طباعة ورقية -->
+                <div class="secondary-actions-row">
+                    <button class="action-btn btn-send-customer" onclick="sendInvoiceToCustomerWhatsApp()">
+                        <span class="action-icon">💬</span>
+                        <span>إرسال للعميل</span>
+                    </button>
+                    <button class="action-btn btn-print-receipt" onclick="printReceipt()">
+                        <span class="action-icon">🖨️</span>
+                        <span>طباعة إيصال</span>
+                    </button>
+                </div>
+
+                <!-- زر الانتهاء وبدء فاتورة جديدة -->
+                <button class="action-btn btn-finish-invoice" onclick="completeAndNewInvoice()">
+                    <span>✅ حفظ والبدء في المحل التالي</span>
+                </button>
+
+                <button class="btn-cancel-modal" onclick="closeInvoiceModal()">رجوع للتعديل</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- نافذة تنبيه سهلة وبسيطة -->
+    <div class="modal-overlay" id="simpleAlertModal">
+        <div class="modal-dialog alert-dialog">
+            <div class="alert-icon" id="simpleAlertIcon">⚠️</div>
+            <h3 class="alert-title" id="simpleAlertTitle">تنبيه</h3>
+            <p class="alert-message" id="simpleAlertMessage">رسالة التنبيه هنا</p>
+            <button class="btn-primary-big" onclick="closeSimpleAlert()">حسناً، فهمت</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // تسجيل Service Worker لتفعيل العمل دون اتصال وتثبيت التطبيق على الهاتف
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => {
+                    console.log('ServiceWorker registration note:', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
