@@ -143,19 +143,23 @@ function renderProductsGrid(categoryFilter = 'الكل') {
         card.id = `prod_card_${p.id}`;
 
         card.innerHTML = `
-            <div class="prod-details">
+            <div class="prod-card-top">
                 <div class="prod-badge-name">
                     <span class="cat-badge cat-badge-${p.badge}">${p.cat}</span>
-                    <strong class="prod-title">${p.name} (${p.size})</strong>
+                    <strong class="prod-title">${p.name} <span class="prod-size-tag">${p.size}</span></strong>
                 </div>
-                <div class="prod-price-tag">سعر العلبة: ${p.price.toLocaleString()} ج.س</div>
-                ${qty > 0 ? `<div class="prod-subtotal" id="subtotal_${p.id}">الإجمالي: ${subtotal.toLocaleString()} ج.س</div>` : `<div class="prod-subtotal" id="subtotal_${p.id}" style="display:none;"></div>`}
+                <div class="prod-price-tag">${p.price.toLocaleString()} <span class="currency-sm">ج.س</span></div>
             </div>
 
-            <div class="qty-stepper">
-                <button type="button" class="btn-step btn-step-minus" onclick="changeQty('${p.id}', -1)">−</button>
-                <input type="number" id="qty_input_${p.id}" class="qty-input" value="${qty}" min="0" onchange="setQtyDirect('${p.id}', this.value)">
-                <button type="button" class="btn-step btn-step-plus" onclick="changeQty('${p.id}', 1)">+</button>
+            <div class="prod-card-bottom">
+                <div class="prod-subtotal" id="subtotal_${p.id}" ${qty > 0 ? '' : 'style="display:none;"'}>
+                    ${qty > 0 ? `الإجمالي: ${(qty * p.price).toLocaleString()} ج.س` : ''}
+                </div>
+                <div class="qty-stepper">
+                    <button type="button" class="btn-step btn-step-minus" onclick="changeQty('${p.id}', -1)" aria-label="تقليل">−</button>
+                    <input type="number" id="qty_input_${p.id}" class="qty-input" value="${qty}" min="0" onchange="setQtyDirect('${p.id}', this.value)">
+                    <button type="button" class="btn-step btn-step-plus" onclick="changeQty('${p.id}', 1)" aria-label="زيادة">+</button>
+                </div>
             </div>
         `;
 
